@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id         String     @id @default(cuid())
+  title      String
+  mediaUrl   String?
+  summary    String?
+  mediaLinks String?
+  realVotes  Int        @default(0)   // ✅ Add this
+  fakeVotes  Int        @default(0)   // ✅ Add this
+  isReviewed Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+
+  comments   Comment[]
+  tags       Tag[]      @relation("PostTags")
+}
+
+
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+  proofUrl   String?
+  upvotes    Int      @default(0)
+  downvotes  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  post       Post     @relation(fields: [postId], references: [id])
+  postId     String
+}
+
+model Tag {
+  id    String   @id @default(cuid())
+  name  String   @unique
+  posts Post[]   @relation("PostTags")
+}
